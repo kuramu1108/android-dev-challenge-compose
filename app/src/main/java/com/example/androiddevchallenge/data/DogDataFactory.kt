@@ -16,11 +16,8 @@
 package com.example.androiddevchallenge.data
 
 import com.example.androiddevchallenge.model.Dog
-import io.github.serpro69.kfaker.Faker
 
 object DogDataFactory {
-    private val faker = Faker()
-
     private val availableSpecies = arrayOf(
         "Labrador Retriever",
         "German Shepherd Dog",
@@ -28,6 +25,22 @@ object DogDataFactory {
         "French Bulldog",
         "Bulldog",
     )
+
+    private val fakeNameRepo = arrayOf(
+        "Peter",
+        "Tom",
+        "Joseph",
+        "Timmy",
+        "Alex",
+        "Bruce",
+        "Bruth",
+        "Josh",
+        "Ray",
+        "Timmy",
+        "John",
+        "Ree",
+    )
+
     fun generateRandomData(size: Int): List<Dog> =
         (0..size).map {
             Dog(
@@ -42,7 +55,7 @@ object DogDataFactory {
         availableSpecies.random()
 
     private fun getRandomName(): String =
-        faker.name.unique.firstName()
+        fakeNameRepo.random()
 
     private fun getRandomAge(): Int =
         (1..5).random()
