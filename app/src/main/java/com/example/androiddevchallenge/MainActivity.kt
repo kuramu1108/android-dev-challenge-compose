@@ -17,20 +17,34 @@ package com.example.androiddevchallenge
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.navArgument
+import androidx.navigation.compose.rememberNavController
+import com.example.androiddevchallenge.ui.DogDetail
+import com.example.androiddevchallenge.ui.DogList
+import com.example.androiddevchallenge.ui.navigation.Action
+import com.example.androiddevchallenge.ui.navigation.Destination.DOG_DETAIL
+import com.example.androiddevchallenge.ui.navigation.Destination.DOG_LIST
+import com.example.androiddevchallenge.ui.navigation.PathParam.DOG_ID
 import com.example.androiddevchallenge.ui.theme.MyTheme
 
 class MainActivity : AppCompatActivity() {
+    private val viewModel by viewModels<MainViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MyTheme {
-                MyApp()
+                MyApp(viewModel)
             }
         }
     }
@@ -38,9 +52,28 @@ class MainActivity : AppCompatActivity() {
 
 // Start building your app here!
 @Composable
-fun MyApp() {
+fun MyApp(
+    viewModel: MainViewModel
+) {
+    val navController = rememberNavController()
+    val actions = remember(navController) { Action(navController = navController) }
     Surface(color = MaterialTheme.colors.background) {
-        Text(text = "Ready... Set... GO!")
+        NavHost(navController = navController, startDestination = DOG_LIST) {
+            composable(DOG_LIST) {
+                DogList(
+                    viewModel = viewModel,
+                    onItemClick = actions.toDetail
+                )
+            }
+            composable(
+                route = "$DOG_DETAIL/{$DOG_ID}",
+                arguments = listOf(navArgument(DOG_ID) { type = NavType.LongType })
+            ) {
+                val dogId = it.arguments?.getLong(DOG_ID) ?: -1L
+                val dog = viewModel.getDog(dogId)
+                DogDetail(dog = dog)
+            }
+        }
     }
 }
 
@@ -48,14 +81,14 @@ fun MyApp() {
 @Composable
 fun LightPreview() {
     MyTheme {
-        MyApp()
+        MyApp(viewModel = MainViewModel())
     }
 }
 
-@Preview("Dark Theme", widthDp = 360, heightDp = 640)
+// @Preview("Dark Theme", widthDp = 360, heightDp = 640)
 @Composable
 fun DarkPreview() {
     MyTheme(darkTheme = true) {
-        MyApp()
+        MyApp(viewModel = MainViewModel())
     }
 }
